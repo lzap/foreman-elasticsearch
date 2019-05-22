@@ -1,0 +1,24 @@
+#!/bin/bash
+
+[ -f .config ] && source .config
+
+if [ -z "$ES_SERVER" ]; then
+  read -e -p "ElasticSearch host: " -i "localhost" ES_SERVER
+fi
+if [ -z "$ES_PORT" ]; then
+  read -e -p "ElasticSearch port: " -i "9200" ES_PORT
+fi
+if [ -z "$ES_LOCATION" ]; then
+  read -e -p "Configuration location: " -i "/etc/rsyslog.d" ES_LOCATION
+fi
+
+cat >.config <<EOC
+ES_SERVER=$ES_SERVER
+ES_PORT=$ES_PORT
+ES_LOCATION=$ES_LOCATION
+EOC
+
+mkdir -p "$ES_LOCATION"
+cp normalize_level.json prio_to_level.json foreman.conf "$ES_LOCATION"
+sed "s/@ES_SERVER@/$ES_SERVER/" -i "$ES_LOCATION/foreman.conf"
+sed "s/@ES_PORT@/$ES_PORT/" -i "$ES_LOCATION/foreman.conf"

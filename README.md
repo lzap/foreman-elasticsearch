@@ -14,35 +14,24 @@ This has been tested with the following versions:
 
 ## Instructions
 
-Install required components and checkout the configuration files:
-
-    yum -y install git rsyslog-elasticsearch rsyslog-mmnormalize rsyslog-mmjsonparse foreman-journald
-    git checkout https://github.com/lzap/foreman-elasticsearch
-    cd foreman-elasticsearch
-
-Copy few configuration files to `/etc/rsyslog.d`:
-
-    cp ./foreman.conf ./*.json /etc/rsyslog.d/foreman.conf
-
-Run the installer to change `/etc/foreman/settings.yaml` configuration for journald output. Older versions of Foreman installer might not understand some parameters, in that case edit the configuration file manually.
-
-    foreman-installer --foreman-logging-level info --foreman-logging-type journald --foreman-logging-layout pattern
-
-This is how the configuration should look like:
-
-    cat /etc/foreman/settings.yaml | grep logging -A4
-    :logging:
-      :level: info
-      :type: journald
-      :layout: pattern
-      :sys_pattern: "%m\n"
-
-The installer should have restarted `httpd` service, if not do it manually now.
-
 TODO:
 
-/var/lib/tomcat/webapps/candlepin/WEB-INF/classes/logback.xml
+* finish document and ask for review
+* document audit.log
+* send candlepin to production.log as well
+* add field foreman.app
+* make field table script from YAML
+* move the instructions from gdoc to this README
 
-https://bugzilla.redhat.com/show_bug.cgi?id=1669101
+Candlepin:
 
-https://docs.google.com/document/d/1VYlH-VT4qMh9IbxoJSuxgciVxk5QgqL_mOXTWX9VxwA/edit#heading=h.yiwp6kb5amhe
+    <appender name="SyslogAppender" class="net.logstash.logback.appender.LogstashSocketAppender">
+        <host>127.0.0.1</host>
+        <port>514</port>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+        <prefix class="ch.qos.logback.classic.PatternLayout">
+            <pattern>&lt;34&gt;1 - localhost candlepin - - - @cee:</pattern>
+        </prefix>
+    </appender>
+
+
