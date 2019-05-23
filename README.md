@@ -264,8 +264,6 @@ And the following files are new in this configuration:
 ## TODO
 
 * smart proxy logging does not send metadata for some reason - fix this
-* add field foreman.app to YAML
-* review fields
 * make field table script from YAML
 * logrotation?
 * configure tomcat?
