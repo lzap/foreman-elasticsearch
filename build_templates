@@ -5,6 +5,6 @@ pushd build
 [ -d elasticsearch-templates ] || git clone https://github.com/ViaQ/elasticsearch-templates
   pushd elasticsearch-templates/templates/foreman/
     make
-    cp org.foreman.*json ../../../..
+    cp org.foreman.*{json,asciidoc} ../../../..
   popd
 popd

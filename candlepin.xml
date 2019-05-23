@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <contextName>candlepin</contextName>
+
+    <turboFilter class="org.candlepin.logging.LoggerAndMDCFilter">
+        <key>orgLogLevel</key>
+        <topLogger>org.candlepin</topLogger>
+        <OnMatch>ACCEPT</OnMatch>
+    </turboFilter>
+
+    <logger name="org.candlepin" level="INFO"/>
+    <logger name="org.candlepin.audit.LoggingListener.AuditLog" level="INFO" additivity="false" />
+    <logger name="org.apache.qpid.transport.network.security.ssl.SSLUtil" level="ERROR"/>
+    <logger name="org.hibernate.orm.deprecation" level="DEBUG" additivity="false"/>
+
+    <appender name="SyslogAppender" class="net.logstash.logback.appender.LogstashSocketAppender">
+        <host>127.0.0.1</host>
+        <port>514</port>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+        <prefix class="ch.qos.logback.classic.PatternLayout">
+            <pattern>&lt;34&gt;1 - localhost candlepin - - - @cee:</pattern>
+        </prefix>
+    </appender>
+
+    <root level="WARN">
+        <appender-ref ref="SyslogAppender" />
+    </root>
+</configuration>
+

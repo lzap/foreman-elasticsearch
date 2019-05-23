@@ -1,0 +1,5 @@
+#!/bin/bash
+
+[ -f /var/lib/tomcat/webapps/candlepin/WEB-INF/classes/logback.xml.esbackup ] ||
+  cp /var/lib/tomcat/webapps/candlepin/WEB-INF/classes/logback.xml{,.esbackup}
+cp -f candlepin.xml /var/lib/tomcat/webapps/candlepin/WEB-INF/classes/logback.xml

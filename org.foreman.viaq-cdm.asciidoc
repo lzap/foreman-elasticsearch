@@ -1,0 +1,614 @@
+
+////
+This file is generated! See scripts/generate_template.py --docs
+////
+
+[[exported-fields]]
+== Exported Fields
+
+These are the fields exported by the logging system and available for searching
+from Elasticsearch and Kibana.  Use the full, dotted field name when searching.
+For example, for an Elasticsearch /_search URL, to look for a Kubernetes pod name,
+use `/_search/q=kubernetes.pod_name:name-of-my-pod`
+This document describes fields that may not be present in your logging store.
+Not all of these fields are present in every record.
+The fields are grouped in the following categories:
+
+* <<exported-fields-Default>>
+* <<exported-fields-foreman>>
+* <<exported-fields-systemd>>
+
+
+'''
+[[exported-fields-Default]]
+=== [big]*Top Level Fields*
+
+The top level fields are common to every application, and may be present in every record.
+For the Elasticsearch template, this is what populates the actual mappings
+of _default_ in the template's mapping section.
+
+
+
+==== @timestamp
+
+type: date
+
+example: 2015-01-24 14:06:05.071000
+
+format: yyyy-MM-dd HH:mm:ss,SSSZ||yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ||yyyy-MM-dd'T'HH:mm:ssZ||dateOptionalTime
+
+UTC value marking when the log payload was created, or when log payload was first collected if the creation time is not known;
+this is the log processing pipeline’s “best effort” determination of when the log payload was generated
+FYI: the “@” prefix convention to note a field as being reserved for a particular use; in this case, most tools by default look for “@timestamp” with ElasticSearch
+
+
+==== geoip
+
+type: object
+
+geo-ip of the machine
+
+
+==== hostname
+
+type: keyword
+
+FQDN of the entity generating the original payload.  This field is a best effort attempt to derive this context; sometimes the entity generating it knows it; other times that entity has a restricted namespace itself, and the collector or normalizer knows that.
+
+
+==== ipaddr4
+
+type: ip
+
+IP address v4 of the source server. Can be an array.
+
+
+==== ipaddr6
+
+type: ip
+
+IP address v6 of the source server (if available). Can be an array.
+
+
+==== level
+
+type: keyword
+
+example: info
+
+Logging level as provided by: rsyslog(severitytext property), python's
+logging module, etc.
+Possible values are as listed here: http://sourceware.org/git/?p=glibc.git;a=blob;f=misc/sys/syslog.h;h=ee01478c4b19a954426a96448577c5a76e6647c0;hb=HEAD#l74 plus `trace` and `unknown`
+That is: alert crit debug emerg err info notice trace unknown warning
+Note that `trace` isn't in the syslog.h list but many applications use it
+`unknown` is only used when the logging system gets a value it doesn't understand
+`unknown` is the highest level
+`trace` should be considered as higher (more verbose) than `debug`
+`error` should be converted to `err`
+`panic` should be converted to `emerg`
+`warn` should be converted to `warning`
+Numeric values from syslog/journal PRIORITY can usually be mapped using the priority values as listed here:
+http://sourceware.org/git/?p=glibc.git;a=blob;f=misc/sys/syslog.h;h=ee01478c4b19a954426a96448577c5a76e6647c0;hb=HEAD#l51
+That is, 0 -> emerg, 1 -> alert, ..., 7 -> debug, 8 -> trace, 9 -> unknown
+Log levels/priorities from other logging systems should be mapped to the nearest match
+For example, from python logging: https://docs.python.org/2.7/library/logging.html#logging-levels
+CRITICAL -> crit, ERROR -> err, ...., DEBUG -> debug
+
+
+==== message
+
+type: text
+
+example: TODO
+
+Typical log entry message, or payload, possibly stripped of metadata pulled out of it by collector/normalizer, UTF-8 encoded.
+
+
+==== pid
+
+type: keyword
+
+This is the process ID of the logging entity, if available.
+
+
+==== service
+
+type: keyword
+
+Name of the service associated with the logging entity, if available. For example, syslog's APP-NAME and rsyslog's programname property are mapped to the service field.
+
+
+==== tags
+
+type: text
+
+Optionally provided operator defined list of tags placed on each log by the collector or normalizer. The payload can be a string with whitespace-delimited string tokens, or a JSON list of string tokens.
+
+
+==== file
+
+type: text
+
+Optional path to the file containing the log entry local to the collector TODO: analyzer for file paths
+
+
+==== offset
+
+type: long
+
+The offset value can represent bytes to the start of the log line in the file (zero or one based), or log line numbers (zero or one based), so long as the values are strictly monotonically increasing in the context of a single log file. They values are allowed to wrap, representing a new version of the log file (rotation).
+
+
+==== namespace_name
+
+type: keyword
+
+example: my-cool-project-in-lab04
+
+format: [a-zA-Z][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]
+
+Associate this record with the namespace with this name.
+This value will not be stored.  It is only used to associate the
+record with the appropriate namespace for access control and
+visualization.  Normally this value will be given in the tag, but if the
+protocol does not support sending a tag, this field can be used.
+If this field is present, it will override the
+namespace given in the tag or in kubernetes.namespace_name.
+The format is the same format used for Kubernetes namespace names.
+See also namespace_uuid.
+
+
+==== namespace_uuid
+
+type: keyword
+
+example: 82f13a8e-882a-4344-b103-f0a6f30fd218
+
+format: [a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}
+
+The uuid associated with the namespace_name.
+This value will not be stored.  It is only used to associate the
+record with the appropriate namespace for access control and
+visualization.  If this field is present, it will override the
+uuid given in kubernetes.namespace_uuid.  This will also cause
+the Kubernetes metadata lookup to be skipped for this log record.
+
+
+==== viaq_msg_id
+
+type: keyword
+
+example: 82f13a8e-882a-4344-b103-f0a6f30fd218
+
+A unique ID assigned to each message.  The format is not specified.
+It may be a UUID or a Base64 or some other ascii value.
+This is currently generated by
+https://github.com/uken/fluent-plugin-elasticsearch/tree/v1.13.2#generate-hash-id
+and is used as the `_id` of the document in Elasticsearch.
+An intended use of this field is that if you use another logging
+store or application other than Elasticsearch, but you still need
+to correlate data with the data stored in Elasticsearch, this field
+will give you the exact document corresponding to the record.
+
+
+
+'''
+[[exported-fields-foreman]]
+=== [big]*foreman Fields*
+
+Contains common fields specific to Foreman / Satellite 6 deployment.
+
+
+
+==== foreman.foreman_logger
+
+type: keyword
+
+Ruby on Rails logger name, one of: app, sql, permissions, audit, templates, ldap, telemetry, notifications or blob. Loggers can be individually enabled or disabled. For more info see Foreman's setting.yaml file.
+
+
+==== foreman.foreman_login
+
+type: keyword
+
+User login name who created the event.
+
+
+==== foreman.foreman_admin
+
+type: boolean
+
+Whether user who created the event is super admin or regular user.
+
+
+==== foreman.org_id
+
+type: long
+
+Organization database ID which created the event, if set.
+
+
+==== foreman.loc_id
+
+type: long
+
+Location database ID which created the event, if set.
+
+
+==== foreman.remote_ip
+
+type: ip
+
+IPv4 address of remote client which created the event, if available.
+
+
+==== foreman.request
+
+type: keyword
+
+format: [a-zA-Z][a-zA-Z0-9-]{0,61}[a-zA-Z0-9] UUID of web request for events created in web request context.
+
+
+==== foreman.session
+
+type: keyword
+
+format: [a-zA-Z][a-zA-Z0-9-]{0,61}[a-zA-Z0-9] UUID of web session for events created in web request context. For session-less requests (e.g. API call) new session UUID is generated every time.
+
+
+
+'''
+[[exported-fields-foreman.exception]]
+=== [big]*foreman.exception Fields*
+
+Contains common fields specific to Ruby (Ruby on Rails) exceptions.
+
+
+
+==== foreman.exception.message
+
+type: text
+
+Exception message
+
+
+==== foreman.exception.class
+
+type: keyword
+
+Ruby exception class.
+
+
+==== foreman.exception.backtrace
+
+type: text
+
+Full exception backtrace (multiline text).
+
+
+
+'''
+[[exported-fields-foreman.template]]
+=== [big]*foreman.template Fields*
+
+Contains common fields specific to template renderers. Events only appear when "blob" logger is enabled. Rendered template contents is part of log message.
+
+
+
+==== foreman.template.name
+
+type: keyword
+
+Template name which was used to render content.
+
+
+==== foreman.template.digest
+
+type: keyword
+
+SHA256 of the rendered template contents.
+
+
+==== foreman.template.host_name
+
+type: keyword
+
+Host name which was associated with the template, if present.
+
+
+==== foreman.template.host_id
+
+type: long
+
+Host database ID which was associated with the template, if present.
+
+
+
+'''
+[[exported-fields-systemd]]
+=== [big]*systemd Fields*
+
+Contains common fields specific to systemd journal.  For more information please see https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html Applications may write their own fields to the journal.  These will be available under the `systemd.u` namespace.  `RESULT` and `UNIT` are two such fields.
+
+
+
+
+'''
+[[exported-fields-systemd.k]]
+=== [big]*systemd.k Fields*
+
+systemd's kernel-specific metadata.
+
+
+
+==== systemd.k.KERNEL_DEVICE
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_KERNEL_DEVICE=
+
+
+==== systemd.k.KERNEL_SUBSYSTEM
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_KERNEL_SUBSYSTEM=
+
+
+==== systemd.k.UDEV_DEVLINK
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_UDEV_DEVLINK=
+
+
+==== systemd.k.UDEV_DEVNODE
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_UDEV_DEVNODE=
+
+
+==== systemd.k.UDEV_SYSNAME
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_UDEV_SYSNAME=
+
+
+
+'''
+[[exported-fields-systemd.t]]
+=== [big]*systemd.t Fields*
+
+trusted journal fields, fields that are implicitly added by the journal and cannot be altered by client code.
+
+
+
+==== systemd.t.AUDIT_LOGINUID
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_AUDIT_SESSION=
+
+
+==== systemd.t.BOOT_ID
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_BOOT_ID=
+
+
+==== systemd.t.AUDIT_SESSION
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_AUDIT_SESSION=
+
+
+==== systemd.t.CAP_EFFECTIVE
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_CAP_EFFECTIVE=
+
+
+==== systemd.t.CMDLINE
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_COMM=
+
+
+==== systemd.t.COMM
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_COMM=
+
+
+==== systemd.t.EXE
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_COMM=
+
+
+==== systemd.t.GID
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_PID=
+
+
+==== systemd.t.HOSTNAME
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_HOSTNAME=
+
+
+==== systemd.t.MACHINE_ID
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_MACHINE_ID=
+
+
+==== systemd.t.PID
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_PID=
+
+
+==== systemd.t.SELINUX_CONTEXT
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_SELINUX_CONTEXT=
+
+
+==== systemd.t.SOURCE_REALTIME_TIMESTAMP
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_SOURCE_REALTIME_TIMESTAMP=
+This is converted to RFC 3339 NS format
+
+
+==== systemd.t.SYSTEMD_CGROUP
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_SYSTEMD_CGROUP=
+
+
+==== systemd.t.SYSTEMD_OWNER_UID
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_SYSTEMD_CGROUP=
+
+
+==== systemd.t.SYSTEMD_SESSION
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_SYSTEMD_CGROUP=
+
+
+==== systemd.t.SYSTEMD_SLICE
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_SYSTEMD_CGROUP=
+
+
+==== systemd.t.SYSTEMD_UNIT
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_SYSTEMD_CGROUP=
+
+
+==== systemd.t.SYSTEMD_USER_UNIT
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_SYSTEMD_CGROUP=
+
+
+==== systemd.t.TRANSPORT
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_TRANSPORT=
+
+
+==== systemd.t.UID
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#_PID=
+
+
+
+'''
+[[exported-fields-systemd.u]]
+=== [big]*systemd.u Fields*
+
+fields that are directly passed from clients and stored in the journal.
+
+
+
+==== systemd.u.CODE_FILE
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#CODE_FILE=
+
+
+==== systemd.u.CODE_FUNCTION
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#CODE_FILE=
+
+
+==== systemd.u.CODE_LINE
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#CODE_FILE=
+
+
+==== systemd.u.ERRNO
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#ERRNO=
+
+
+==== systemd.u.MESSAGE_ID
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#MESSAGE_ID=
+
+
+==== systemd.u.SYSLOG_FACILITY
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#SYSLOG_FACILITY=
+
+
+==== systemd.u.SYSLOG_IDENTIFIER
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#SYSLOG_FACILITY=
+
+
+==== systemd.u.SYSLOG_PID
+
+type: keyword
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html#SYSLOG_FACILITY=
+
+
+==== systemd.u.RESULT
+
+type: keyword
+
+For private use only.
+
+
+==== systemd.u.UNIT
+
+type: keyword
+
+For private use only.
+
+
