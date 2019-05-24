@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# create dummy content so RPM won't replace and do .rpmnew on update
+echo '#' > /etc/logrotate.d/foreman
+echo '#' > /etc/logrotate.d/foreman-proxy
+echo '#' > /etc/logrotate.d/candlepin
+
+# use logrotate standard options
+cat >/etc/logrotate.d/foreman-elasticsearch <<'EOES'
+/var/log/foreman/production.log
+/var/log/foreman-proxy/proxy.log
+/var/log/candlepin/candlepin.log
+{
+    missingok
+    sharedscripts
+    postrotate
+        /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+    endscript
+}
+EOES

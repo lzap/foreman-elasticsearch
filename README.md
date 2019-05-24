@@ -261,6 +261,39 @@ And the following files are new in this configuration:
 
 * /var/log/foreman/audit.log (contains audit events from production.log)
 
+### Log file rotation
+
+Log entries which end up in system journal (when persistent mode is enabled) or
+in `/var/log/messages` are automatically rotated, however for easy
+troubleshooting logs are also copied to well-known locations. Log rotation
+scripts which ship with Foreman, Katello or Satellite should be all replaced
+with configuration which notifies rsyslog rather than daemons which send logs
+to syslog. These are:
+
+* `/etc/logrotate.d/foreman`
+* `/etc/logrotate.d/foreman-proxy`
+* `/etc/logrotate.d/candlepin`
+
+Example configuration (taken from `/etc/logrotate.d/syslog`):
+
+    /var/log/foreman/production.log
+    /var/log/foreman-proxy/proxy.log
+    /var/log/candlepin/candlepin.log
+    {
+        missingok
+        sharedscripts
+        postrotate
+            /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+        endscript
+    }
+
+There is a script to do exactly that: it replaces the logrotate scripts above
+with a dummy comment so RPM will treat them correctly and deploy a new config
+`/etc/logrotate.d/foreman-elasticsearch` with standard rsyslog rotation
+options.
+
+    server# ./configure_logrotate
+
 ## Known issues
 
 * Satellite 6.6 build is missing `foreman-proxy-journald` package, therefore when proxy is configured for system journal output, it prints a warning `Journald is not available on this platform. Falling back to STDOUT.` Logging from proxy works but it has no fields like `REQUEST` or `REMOTE_IP` available. Filed: https://bugzilla.redhat.com/show_bug.cgi?id=1713641
@@ -268,8 +301,7 @@ And the following files are new in this configuration:
 ## TODO
 
 * use $programname and if-else for better smart proxy processing
-* resolve logrotation changes
-* configure tomcat with rsyslog as well
 * add support for pulp and all its components as well
+* configure tomcat with rsyslog as well (no correlation)
 * review /var/log/messages
 
