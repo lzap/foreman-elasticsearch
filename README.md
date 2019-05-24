@@ -261,11 +261,15 @@ And the following files are new in this configuration:
 
 * /var/log/foreman/audit.log (contains audit events from production.log)
 
+## Known issues
+
+* Satellite 6.6 build is missing `foreman-proxy-journald` package, therefore when proxy is configured for system journal output, it prints a warning `Journald is not available on this platform. Falling back to STDOUT.` Logging from proxy works but it has no fields like `REQUEST` or `REMOTE_IP` available. Filed: https://bugzilla.redhat.com/show_bug.cgi?id=1713641
+
 ## TODO
 
-* smart proxy logging does not send metadata for some reason - fix this
-* make field table script from YAML
-* logrotation?
-* configure tomcat?
+* use $programname and if-else for better smart proxy processing
+* resolve logrotation changes
+* configure tomcat with rsyslog as well
+* add support for pulp and all its components as well
 * review /var/log/messages
 
