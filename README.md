@@ -87,15 +87,15 @@ with rsyslog. For more information on the issue, see:
 [BZ#1600171](https://bugzilla.redhat.com/show_bug.cgi?id=1600171). Also the
 operating system was Red Hat Enterprise Linux 7.6.
 
-    elastic# wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.6.10.rpm
-    elastic# wget https://artifacts.elastic.co/downloads/kibana/kibana-5.6.10-x86_64.rpm
+    elastic# wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.6.16.rpm
+    elastic# wget https://artifacts.elastic.co/downloads/kibana/kibana-5.6.16-x86_64.rpm
 
 Install ElasticSearch, then enable and start the service. By default
 ElasticSearch listens only on localhost, configure external IP address which is
 reachable from Satellite Server. In this example we assume that the host named
 elastic.example.com has IP address 1.2.3.4:
 
-    elastic# rpm -i elasticsearch-5.6.10.rpm
+    elastic# rpm -i elasticsearch-5.6.16.rpm
 
     elastic# grep network.host /etc/elasticsearch/elasticsearch.yml
     network.host: 1.2.3.4
@@ -108,7 +108,7 @@ Install the Kibana UI, configure external IP address which is reachable from
 the server and then enable and start the service.
 
 
-    elastic# rpm -i kibana-5.6.10-x86_64.rpm
+    elastic# rpm -i kibana-5.6.16-x86_64.rpm
 
     elastic# grep server.host /etc/kibana/kibana.yml
     server.host: "1.2.3.4"
