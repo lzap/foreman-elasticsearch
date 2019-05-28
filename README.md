@@ -2,7 +2,7 @@
 
 Configuration for foreman-journald-rsyslog-elasticsearch logging setup. Works
 with Katello or Satellite as well. Initially these instructions were published
-in a Red Hat knowledgebase article: https://access.redhat.com/solutions/3545571
+in a Red Hat Knowledgebase solution: https://access.redhat.com/solutions/3545571
 
 These instructions will be converted to Ansible or Puppet (installer) later
 on.
@@ -183,7 +183,7 @@ https://bugzilla.redhat.com/show_bug.cgi?id=1630874):
 
     server# semanage permissive -a syslogd_t
 
-Now, let's configure syslog to normalize logs and pass them into ElasticSearch.
+Configure syslog to normalize logs and pass them into ElasticSearch.
 The following command copies foreman.conf and two more normalization JSON files
 into /etc/rsyslog.d directory and configures ElasticSearch host and port.
 
@@ -241,7 +241,7 @@ Use Elasticsearch API to query indices and records:
     server# curl -XGET elastic.example.com:9200/_cat/indices?v
     server# curl -XGET elastic.example.com:9200/project.foreman-logs.2019.05.22/events/_search
 
-Data appear under project.foreman-logs.20YY.MM.DD indices where YMD represents
+Data appears under project.foreman-logs.20YY.MM.DD indices where YMD represents
 current year, month and day. All log entries are also copied into
 `/var/log/messages` for easier local troubleshooting.
 
