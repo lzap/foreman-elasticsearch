@@ -129,6 +129,10 @@ users to access Kibana Web interface on port TCP 5601.
 
 To access Kibana visit http://elastic.example.com:5601
 
+Navigate to Management > Advanced Settings
+
+Locate `indexPattern:placeholder`, clear the default entry and set it to `project.foreman-logs*`
+
 ## Configuring ElasticSearch
 
 Before proceeding with configuring Foreman or Satellite, make sure the server
