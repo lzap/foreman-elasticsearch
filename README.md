@@ -113,6 +113,9 @@ the server and then enable and start the service.
     elastic# grep server.host /etc/kibana/kibana.yml
     server.host: "1.2.3.4"
 
+    elastic# grep elasticsearch.url /etc/kibana/kibana.yml
+    elasticsearch.url: "http://1.2.3.4:9200"
+
     elastic# systemctl daemon-reload
     elastic# systemctl enable kibana.service
     elastic# systemctl start kibana.service
