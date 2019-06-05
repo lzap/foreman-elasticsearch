@@ -91,30 +91,34 @@ operating system was Red Hat Enterprise Linux 7.6.
     elastic# wget https://artifacts.elastic.co/downloads/kibana/kibana-5.6.16-x86_64.rpm
 
 Install ElasticSearch, then enable and start the service. By default
-ElasticSearch listens only on localhost, configure external IP address which is
-reachable from Satellite Server. In this example we assume that the host named
-elastic.example.com has IP address 1.2.3.4:
+ElasticSearch listens only on localhost, configure either an external IP address
+which is reachable from Satellite Server or listening on all interfaces:
 
     elastic# rpm -i elasticsearch-5.6.16.rpm
 
     elastic# grep network.host /etc/elasticsearch/elasticsearch.yml
-    network.host: 1.2.3.4
+    network.host: 0.0.0.0
 
     elastic# systemctl daemon-reload
     elastic# systemctl enable elasticsearch.service
     elastic# systemctl start elasticsearch.service
 
-Install the Kibana UI, configure external IP address which is reachable from
-the server and then enable and start the service.
-
+Install the Kibana UI, configure external IP address in the same way and then
+enable and start the service.
 
     elastic# rpm -i kibana-5.6.16-x86_64.rpm
 
     elastic# grep server.host /etc/kibana/kibana.yml
-    server.host: "1.2.3.4"
+    server.host: "0.0.0.0"
+
+By default, Kibana expects ElasticSearch running on localhost port 9200 which is
+sufficient if it was configured to listen on all interfaces. In case it was
+configured for a particular IP address, change the configuartion:
 
     elastic# grep elasticsearch.url /etc/kibana/kibana.yml
     elasticsearch.url: "http://1.2.3.4:9200"
+
+And restart the service:
 
     elastic# systemctl daemon-reload
     elastic# systemctl enable kibana.service
@@ -157,7 +161,8 @@ Log metadata follows Red Hat Common Data Model, which is used across various
 Red Hat projects and products (e.g. OpenShift). Before any data is sent to
 ElasticSearch, a JSON template must be downloaded and sent into ElasticSearch.
 
-    server# yum -y install git rsyslog-elasticsearch rsyslog-mmnormalize rsyslog-mmjsonparse foreman-journald
+    server# yum -y install git rsyslog-elasticsearch rsyslog-mmnormalize rsyslog-mmjsonparse \
+      foreman-journald foreman-proxy-journald
     server# git clone https://github.com/lzap/foreman-elasticsearch
     server# cd foreman-elasticsearch
     server# ls *.{json,conf} -1
@@ -181,7 +186,8 @@ Upload template from the server to ElasticSearch server. Be sure to pick the
 correct version as more than one JSON templates might have been generated. For
 ElasticSearch 5.x choose JSON index template version 5.5.2.
 
-    server# curl -X PUT "elastic.example.com:9200/_template/project.foreman" -H 'Content-Type: application/json' -d@org.foreman.viaq-cdm.5.5.2.template.json
+    server# curl -X PUT "elastic.example.com:9200/_template/project.foreman" \
+      -H 'Content-Type: application/json' -d@org.foreman.viaq-cdm.5.5.2.template.json
 
 Rsyslog SELinux policy prevents from connecting to Elasticsearch port (9200),
 the only option is to compile new policy or turn off SELinux for Rsyslog (a
@@ -210,7 +216,8 @@ Configure the Foreman Rails application to send data into system journal rather
 than /var/log/foreman/production.log directly. They will eventually appear in
 the same file as copies to avoid confusion.
 
-    server# foreman-installer --foreman-logging-level info --foreman-logging-type journald --foreman-logging-layout pattern --foreman-proxy-log JOURNAL
+    server# foreman-installer --foreman-logging-level info --foreman-logging-type journald \
+      --foreman-logging-layout pattern --foreman-proxy-log JOURNAL
 
 Older versions of Foreman or Satellite might not have some installer options
 available, in that case configure logging manually:
@@ -225,9 +232,15 @@ available, in that case configure logging manually:
     server# cat /etc/foreman-proxy/settings.yml | grep :log_file
     :log_file: JOURNAL
 
-Restart both services:
+Foreman installer should have restarted both services, in case configuration
+was modified manually restart the services:
 
     server# systemctl restart httpd foreman-proxy
+
+Note when foreman-journald or foreman-proxy-journald packages were not
+installed, there will be a warning in log and logging falls back to
+stdout->journal logging which does not have any structured fields. Check for
+warnings "Journald is not available on this platform. Falling back to STDOUT."
 
 ## Configuring Candlepin
 
