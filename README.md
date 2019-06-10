@@ -320,8 +320,4 @@ options.
 
 ## TODO
 
-* use $programname and if-else for better smart proxy processing
 * add support for pulp and all its components as well
-* configure tomcat with rsyslog as well (no correlation)
-* review /var/log/messages
-
