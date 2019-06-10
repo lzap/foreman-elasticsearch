@@ -316,6 +316,13 @@ options.
 
 ## Known issues
 
+This document and configuration is written in a way which works with any
+version of Foreman, Katello or Satellite. However, for older versions and in
+case of problems checkout older configuration via git tags (e.g. `git checkout
+foreman-1.22`).
+
+Other known issues:
+
 * Satellite 6.6 build is missing `foreman-proxy-journald` package, therefore when proxy is configured for system journal output, it prints a warning `Journald is not available on this platform. Falling back to STDOUT.` Logging from proxy works but it has no fields like `REQUEST` or `REMOTE_IP` available. Filed: https://bugzilla.redhat.com/show_bug.cgi?id=1713641
 
 ## TODO
