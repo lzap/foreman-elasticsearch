@@ -327,4 +327,5 @@ Other known issues:
 
 ## TODO
 
-* add support for pulp and all its components as well
+* add dynflow (blocked by https://github.com/theforeman/smart_proxy_dynflow/pull/61 at the moment)
+* add pulp and all its components as well
