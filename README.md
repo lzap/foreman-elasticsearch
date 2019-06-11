@@ -327,5 +327,6 @@ Other known issues:
 
 ## TODO
 
+* Foreman verison until 1.22.1 sends session id in request id: https://github.com/theforeman/foreman/pull/6827
 * add dynflow (blocked by https://github.com/theforeman/smart_proxy_dynflow/pull/61 at the moment)
 * add pulp and all its components as well
