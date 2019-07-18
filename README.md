@@ -4,8 +4,9 @@ Configuration for foreman-journald-rsyslog-elasticsearch logging setup. Works
 with Katello or Satellite as well. Initially these instructions were published
 in a Red Hat Knowledgebase solution: https://access.redhat.com/solutions/3545571
 
-These instructions will be converted to Ansible or Puppet (installer) later
-on.
+Foreman installer is currently unable to setup ElasticSearch, however there is
+a 3rd party git repository with puppet modules available here:
+https://github.com/Crited/Puppet-ES-for-Foreman
 
 This has been tested with the following versions:
 
