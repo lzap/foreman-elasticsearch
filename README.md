@@ -70,11 +70,17 @@ blob | Contents of rendered templates for auditing purposes (might contain sensi
 
 All fields are forwarded from journald to rsyslog for further processing.
 
-## Elasticsearch metadata
+## Transformation to destination model
 
 Rsyslog performs data transformation and sends entries to Elasticsearch in the
 Red Hat Common Data model. Documentation for all JSON fields can be found in
 [org.foreman.viaq-cdm.asciidoc](org.foreman.viaq-cdm.asciidoc).
+
+The rsyslog configuration file can be modified in order to transfor log entries
+into any model required. Resulting data can be stored in various formats or
+sent over network, rsyslog ships with multiple output formatters and exporters.
+For more info on how to configure rsyslog, read the operating system
+documentation and rsyslog man pages.
 
 ## Configuring Elasticsearch and Kibana
 
@@ -84,9 +90,8 @@ provided or supported by Red Hat. In this article, the Foreman or the Satellite
 host is named `server`, and the ElasticSearch host is named `elastic`.
 
 ElasticSearch version 5.x is required because Elastic version 6.x does not work
-with rsyslog. For more information on the issue, see:
-[BZ#1600171](https://bugzilla.redhat.com/show_bug.cgi?id=1600171). Also the
-operating system was Red Hat Enterprise Linux 7.6.
+with rsyslog shipped in Red Hat Enterprise Linux 7.6. For more information on the issue, see:
+[BZ#1600171](https://bugzilla.redhat.com/show_bug.cgi?id=1600171).
 
     elastic# curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.6.16.rpm
     elastic# curl -O https://artifacts.elastic.co/downloads/kibana/kibana-5.6.16-x86_64.rpm
@@ -329,6 +334,5 @@ Other known issues:
 
 ## TODO
 
-* Foreman verison until 1.22.1 sends session id in request id: https://github.com/theforeman/foreman/pull/6827
-* add dynflow (blocked by https://github.com/theforeman/smart_proxy_dynflow/pull/61 at the moment)
-* add pulp and all its components as well
+* Add dynflow journald support (blocked by https://github.com/theforeman/smart_proxy_dynflow/pull/61 which is blocked by https://github.com/TwP/logging/pull/206).
+* Add pulp and all its components as well - planned to be finished by end of 2020.
