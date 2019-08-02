@@ -87,8 +87,9 @@ with rsyslog. For more information on the issue, see:
 [BZ#1600171](https://bugzilla.redhat.com/show_bug.cgi?id=1600171). Also the
 operating system was Red Hat Enterprise Linux 7.6.
 
-    elastic# wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.6.16.rpm
-    elastic# wget https://artifacts.elastic.co/downloads/kibana/kibana-5.6.16-x86_64.rpm
+    elastic# curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.6.16.rpm
+    elastic# curl -O https://artifacts.elastic.co/downloads/kibana/kibana-5.6.16-x86_64.rpm
+    elastic# yum install java-1.8.0-openjdk
 
 Install ElasticSearch, then enable and start the service. By default
 ElasticSearch listens only on localhost, configure external IP address which is
