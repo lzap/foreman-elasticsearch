@@ -321,6 +321,13 @@ options.
 
     server# ./configure_logrotate
 
+## CEF (Common Event Format) logging
+
+It is possible to forward Satellite logs in CEF via rsyslog-mmfields module which has been added to RHEL 8.6. For more info:
+
+* https://www.rsyslog.com/doc/master/configuration/modules/mmfields.html
+* https://bugzilla.redhat.com/show_bug.cgi?id=1866900
+
 ## Known issues
 
 This document and configuration is written in a way which works with any
