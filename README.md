@@ -261,6 +261,11 @@ JSON.
     server# ./configure_candlepin
     server# systemctl restart tomcat
 
+Note: Newer versions of Candlepin (Satellite 7.1+) will have newer version of
+logback library and the configuration from this repo might not work anymore.
+Update it
+[accordingly](https://github.com/candlepin/candlepin/pull/3191/files#diff-33255c198beb505875429994308ac79fd2a34e56bf81f6a7794dec3687790441R71-R81).
+
 ## Final notes
 
 Use Elasticsearch API to query indices and records:
